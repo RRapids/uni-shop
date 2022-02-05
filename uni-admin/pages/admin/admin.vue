@@ -52,42 +52,52 @@
 
 			<!-- 滑块 -->
 			<swiper :current='menu_id' disable-touch=true style="width: 100%;height: 100%;" class="sorw">
+				<!-- 系统管理 -->
 				<swiper-item class="sorw">
 					<scroll-view scroll-y="true" style="height: 98vh;">
-						<!-- 人员管理id=0 -->
 						<!-- 用户管理 -->
-						<personAdmin :PersonList='PersonList' :total="user_total" :page_current="page_current">
-						</personAdmin>
-						<!-- 人员管理end-->
-					</scroll-view>
-
-				</swiper-item>
-
-				<swiper-item class="sorw">
-					<scroll-view scroll-y="true" style="height: 98vh;">
-						<personAdmin :PersonList='PersonList' :total="total" :page_current="page_current">
-
-						</personAdmin>
-					</scroll-view>
-
-				</swiper-item>
-
-				<swiper-item class="sorw">
-					<scroll-view scroll-y="true" style="height: 98vh;">
+						<userManage :PersonList='PersonList' :total="user_total" :page_current="page_current">
+						</userManage>
 					</scroll-view>
 				</swiper-item>
 
 				<swiper-item class="sorw">
 					<scroll-view scroll-y="true" style="height: 98vh;">
+						<!-- admin管理 -->
+						<adminManage :PersonList='AdminList' :total="admin_total" :page_current="page_current">
+						</adminManage>
 					</scroll-view>
 				</swiper-item>
 
+				<swiper-item class="sorw">
+					<!-- 角色管理 -->
+					<scroll-view scroll-y="true" style="height: 98vh;">
+						<roleManage :PersonList='roleList' :total="role_total" :page_current="page_current">
+						</roleManage>
+					</scroll-view>
+				</swiper-item>
+
+				<!-- 商城管理 -->
+				<swiper-item class="sorw">
+					<!-- 菜品类别管理 -->
+					<scroll-view scroll-y="true" style="height: 98vh;">
+
+
+
+					</scroll-view>
+				</swiper-item>
 
 				<swiper-item class="sorw">
+					<!-- 菜品管理 -->
 					<scroll-view scroll-y="true" style="height: 98vh;">
 					</scroll-view>
 				</swiper-item>
 
+				<swiper-item class="sorw">
+					<!-- 订单管理 -->
+					<scroll-view scroll-y="true" style="height: 98vh;">
+					</scroll-view>
+				</swiper-item>
 
 				<!-- 店铺管理 -->
 				<swiper-item class="sorw">
@@ -105,7 +115,10 @@
 
 <script>
 	import uniPopup from "@/components/uni-popup/uni-popup.vue"
-	import personAdmin from "@/components/admin-components/personAdmin.vue"
+	import userManage from "@/components/admin-components/userManage/userManage.vue"
+	import adminManage from "@/components/admin-components/adminManage/adminManage.vue"
+	import roleManage from "@/components/admin-components/roleManage/roleManage.vue"
+
 	import shopping_admin from "@/components/admin-components/shopping_admin"
 	import RecomAdmin from "@/components/admin-components/RecomAdmin"
 	import stores from "@/components/admin-components/stores.vue"
@@ -116,9 +129,11 @@
 	export default {
 		components: {
 			uniPopup,
-			personAdmin,
+			userManage,
+			adminManage,
 			shopping_admin,
 			RecomAdmin,
+			roleManage,
 			stores
 		},
 		computed: {
@@ -143,10 +158,10 @@
 								id: 0
 							},
 							{
-								name: '角色管理',
+								name: 'admin管理',
 								id: 1
 							}, {
-								name: '权限管理',
+								name: '角色管理',
 								id: 2
 							},
 						]
@@ -155,15 +170,14 @@
 						name: '商城管理',
 						icon: '/static/shopAdmin.png',
 						open: false,
-						page: [
-							{
+						page: [{
 								name: '类别管理',
 								id: 3
 							},
 							{
 								name: '菜品管理',
 								id: 4
-							},{
+							}, {
 								name: '订单管理',
 								id: 5
 							}
@@ -183,8 +197,13 @@
 				// 人员管理数据
 				PersonList: [],
 				user_total: 0,
+				AdminList: [],
+				admin_total: 0,
 
-				// 人员管理数据end
+				// 角色管理数据
+				roleList: [],
+				role_total: 0,
+
 
 				// 商品管理数据
 				ShopList: [],
@@ -192,7 +211,6 @@
 				PageNum_shop: 1,
 				// 商品管理数据end
 				pageList: [],
-				AdminList: [],
 				RecomList: [],
 
 				// 店铺管理数据
@@ -254,6 +272,38 @@
 					.then(res => {
 						this.user_total = res.result.total
 						this.PersonList = res.result.res.data
+					});
+
+				// 获取admin列表
+				uniCloud
+					.callFunction({
+						name: 'admin',
+						data: {
+							action: 'getList',
+							filter: {}, // 筛选条件,格式{sex:'女'}
+							pageIndex: this.page_current, // 第几页
+							pageSize: 5 // 每页条数
+						}
+					})
+					.then(res => {
+						this.admin_total = res.result.total
+						this.AdminList = res.result.res.data
+					});
+
+				// 获取角色列表
+				uniCloud
+					.callFunction({
+						name: 'role',
+						data: {
+							action: 'getList',
+							filter: {}, // 筛选条件,格式{sex:'女'}
+							pageIndex: this.page_current, // 第几页
+							pageSize: 5 // 每页条数
+						}
+					})
+					.then(res => {
+						this.role_total = res.result.total
+						this.roleList = res.result.res.data
 					});
 			},
 			goLogin() {

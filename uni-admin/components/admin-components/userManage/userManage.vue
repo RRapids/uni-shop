@@ -161,7 +161,7 @@
 					name: '',
 					gender: "",
 					city: "",
-					createTime: ""
+					createTime: "",
 				}
 			}
 		},
@@ -182,7 +182,7 @@
 		},
 		onLoad() {
 			this.UserListData = this.PersonList
-			
+
 		},
 
 		methods: {
@@ -405,7 +405,7 @@
 											title: res.result.msg,
 											icon: 'success'
 										});
-									}else{
+									} else {
 										uni.showToast({
 											title: res.result.msg,
 											icon: 'error'

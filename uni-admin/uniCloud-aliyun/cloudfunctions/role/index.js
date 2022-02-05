@@ -6,20 +6,20 @@ exports.main = async (event, context) => {
 			// 模糊查询
 			// 筛选条件，默认为空，格式 {key:'values'}
 			var keywords = event.keywords ? {
-				nickName: new RegExp(event.keywords)
+				roleName: new RegExp(event.keywords)
 			} : {};
-			console.log("keywords", keywords)
+			console.log("roleName", keywords)
 
 			var pageIndex = event.pageIndex ? event.pageIndex : 1; //当前第几页，默认为第一页
 			var pageSize = event.pageSize ? event.pageSize : 5; //每页取多少条记录，默认为10条  
 
-			const countResult = await db.collection('users').where(keywords).count() //获取集合中的总记录数
+			const countResult = await db.collection('role').where(keywords).count() //获取集合中的总记录数
 			const total = countResult.total //得到总记录数 
 			const totalPage = Math.ceil(total / pageSize) //计算页数
 			console.log("totalPage", pageIndex, total, totalPage)
 
 			// 查询数据并返回给前端
-			return db.collection('users')
+			return db.collection('role')
 				.where(keywords)
 				.skip((pageIndex - 1) * pageSize)
 				.limit(pageSize)
@@ -34,26 +34,25 @@ exports.main = async (event, context) => {
 			break;
 
 			// 增加
-		case 'addUsers':
+		case 'add':
 			let date = new Date().toUTCString()
 
 			let field = {
-				nickName: event.data.name,
-				gender: event.data.gender,
-				city: event.data.city,
+				roleId: event.data.roleId,
+				roleName: event.data.roleName,
+				permission: event.data.permission,
 				createTime: date,
-				lastLoginTime: '',
-				avatarUrl: ''
+				note: event.data.note
 			}
 
-			const name = event.data.name
-			const resultDB = await db.collection('users').where({
-				name: name
+			const name = event.data.roleName
+			const resultDB = await db.collection('role').where({
+				roleName: name
 			}).get()
 
 
 			if (resultDB.data.length === 0) {
-				const res = await db.collection('users').add(field)
+				const res = await db.collection('role').add(field)
 				return {
 					status: 0,
 					msg: '添加成功'
@@ -68,16 +67,15 @@ exports.main = async (event, context) => {
 			// 修改
 		case 'edit':
 			let edit_field = {
-				nickName: event.data.name,
-				gender: event.data.gender,
-				city: event.data.city,
+				roleId: event.data.roleId,
+				roleName: event.data.roleName,
+				permission: event.data.permission,
 				createTime: event.data.createTime,
-				lastLoginTime: event.data.lastLoginTime,
-				avatarUrl: event.data.avatarUrl
+				note: event.data.note
 			}
 
 			const editId = event.data.id
-			const res = await db.collection('users').where({
+			const res = await db.collection('role').where({
 				_id: editId
 			}).update({
 				...edit_field
@@ -97,9 +95,9 @@ exports.main = async (event, context) => {
 			break;
 
 			// 删除
-		case 'deleteUsers':
+		case 'delete':
 			const _id = event.id
-			const result = await db.collection('users').where({
+			const result = await db.collection('role').where({
 				_id
 			}).remove()
 
@@ -117,11 +115,11 @@ exports.main = async (event, context) => {
 			break
 
 			// 批量删除
-		case 'deleteMoreUsers':
+		case 'deleteMore':
 			let flag;
 
 			for (let i = 0; i < event.data.length; i++) {
-				const result = await db.collection('users').where({
+				const result = await db.collection('role').where({
 					_id: event.data[i].id
 				}).remove()
 				if (result.deleted === 1) {
