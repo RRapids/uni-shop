@@ -38,6 +38,9 @@ const store = new Vuex.Store({
 				state.isLogin = true
 			}
 		},
+		SET_USERINFO(state, value) {
+			state.userInfo = value
+		},
 
 		SET_ORDERTYPE(state, type) {
 			state.orderType = type

@@ -40,9 +40,10 @@
 					style="width: 40upx;height: 40upx;border-radius: 50%;margin-left: auto;"></image>
 				<view v-if="isLogin">
 					<view style="color: #6C6E72;font-weight: bold;padding: 0 10upx 0 10upx;">
-						{{userInfo.name}}
+						{{userInfo.roleName}} : {{userInfo.name}}
 					</view>
 				</view>
+
 				<view v-else>
 					<view style="color: #6C6E72;font-weight: bold;padding: 0 10upx 0 10upx;" @click="goLogin">
 						登录
@@ -81,8 +82,6 @@
 				<swiper-item class="sorw">
 					<!-- 菜品类别管理 -->
 					<scroll-view scroll-y="true" style="height: 98vh;">
-
-
 
 					</scroll-view>
 				</swiper-item>
@@ -223,15 +222,43 @@
 		onLoad() {
 			this.getData()
 
-			// if (this.isLogin) {
-			// 	uni.showToast({
-			// 		title: "登录成功"
-			// 	})
-			// }
-			// 获取本地缓存
 			const value = uni.getStorageSync('userinfo');
+
 			if (value) {
-				// this.$store.commit('SET_LOGINSTATUS','true')
+
+				this.$store.commit('SET_LOGINSTATUS', 'true')
+				this.$store.commit('SET_USERINFO', value)
+
+				if (value.role != 1) {
+					this.functionList = [{
+							name: '商城管理',
+							icon: '/static/shopAdmin.png',
+							open: false,
+							page: [{
+									name: '类别管理',
+									id: 3
+								},
+								{
+									name: '菜品管理',
+									id: 4
+								}, {
+									name: '订单管理',
+									id: 5
+								}
+							]
+						},
+						{
+							name: '店铺管理',
+							icon: '/static/shopAdmin.png',
+							open: false,
+							page: [{
+								name: '店铺列表',
+								id: 6,
+								path: '@/components/admin-components/stores.vue'
+							}]
+						}
+					]
+				}
 				// this.isLogin = true
 				// this.loginSet
 			} else {
@@ -307,9 +334,6 @@
 					});
 			},
 			goLogin() {
-				// this.$router.push({
-				// 	path:'/login'
-				// })
 				uni.navigateTo({
 					url: '../login/login'
 				})

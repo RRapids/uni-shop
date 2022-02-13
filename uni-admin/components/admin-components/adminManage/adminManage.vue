@@ -88,7 +88,9 @@
 					<view class="center">
 						<view style="color: red;">*</view>
 						角色
-						<input v-model="form.role" class="input_account" />
+						<picker class="input_account" @change="bindPickerChange" :value="index" :range="array">
+							<view class="uni-input">{{array[form.role-1]}}</view>
+						</picker>
 					</view>
 				</view>
 				<!-- 下 -->
@@ -135,7 +137,9 @@
 					<view class="center">
 						<view style="color: red;">*</view>
 						角色
-						<input v-model="form.role" class="input_account" />
+						<picker class="input_account" @change="bindPickerChange" :value="index" :range="array">
+							<view class="uni-input">{{array[form.role-1]}}</view>
+						</picker>
 					</view>
 				</view>
 				<!-- 下 -->
@@ -169,6 +173,9 @@
 				current: 1,
 				pageSize: 5,
 
+				array: [],
+				index: 0,
+
 				form: {
 					id: "",
 					name: '',
@@ -201,7 +208,30 @@
 		},
 
 		methods: {
-			// 获取store列表
+			// 获取角色
+			getRole() {
+				this.array =[]
+				
+				uniCloud
+					.callFunction({
+						name: 'role',
+						data: {
+							action: 'getList',
+							keywords: this.realKeywords, // 筛选条件,格式{sex:'女'}
+							pageIndex: this.current, // 第几页
+							pageSize: this.pageSize // 每页条数
+						}
+					})
+					.then(res => {
+						uni.hideLoading()
+						this.admin_total = res.result.total
+						res.result.res.data.forEach((item, index) => {
+							this.array.push(item.roleName)
+						})
+					});
+			},
+
+			// 获取列表
 			getAdminList() {
 				uniCloud
 					.callFunction({
@@ -243,19 +273,31 @@
 					password: '',
 					avatar: '',
 					phone: "",
-					role: "",
+					role: 2,
 				}
+
+				this.array = []
+				this.getRole()
+				
 				this.$refs.addPopup.open()
 			},
 			// 打开"修改"弹出层
 			editStore(item) {
+				console.log(item)
 				this.$refs.editPopup.open()
-				this.form.id = item._id,
-					this.form.name = item.name,
-					this.form.account = item.account,
-					this.form.password = item.password,
-					this.form.phone = item.phone,
-					this.form.role = item.role
+
+				this.form = {
+					id: item._id,
+					name: item.name,
+					account: item.account,
+					password: item.password,
+					phone: item.phone,
+					role: item.role,
+				}
+
+				this.getRole()
+				
+				
 			},
 			// 打开"删除"弹出层
 			deleteStore(item) {
@@ -305,9 +347,19 @@
 				this.$refs.alertPopup.close()
 			},
 
+			// 选角色
+			bindPickerChange(e) {
+				console.log('picker发送选择改变，携带值为', e.target.value)
+				this.index = e.target.value
+
+				this.form.role = this.index + 1
+			},
+
 			// 确定增加
 			add_sure() {
 				let data = this.form;
+
+				console.log(data)
 				return uniCloud
 					.callFunction({
 						name: 'admin',
